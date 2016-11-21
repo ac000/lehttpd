@@ -1,0 +1,24 @@
+.TH LEHTTPD 8 "2016-11-21" "" "System Administration"
+.SH NAME
+lehttpd - Micro http server for serving letsencrypt challenge responses.
+
+.SH SYNOPSIS
+lehttpd </path/to/challenge/dir>
+
+.SH DESCRIPTION
+Starts a http server to server the challenge response files for letsencrypt
+certificate issuance.
+
+.TP
+.B /path/to/challenge/dir
+This is the path to where an acme client has placed the challenge response
+files that will be requested by letencrypt.
+
+.SH NOTES
+.SS SOURCE
+https://github.com/ac000/lehttpd
+
+.SS LICENSE
+MIT License
+
+See the README for more details.
