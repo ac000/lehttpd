@@ -1,0 +1,48 @@
+lehttpd is a micro http server with the sole purpose of answering
+letsencrypt[0] challenge responses.
+
+Handy for when you are issuing certificates for servers with no running
+web server and you don't really want to set one up etc.
+
+Usage is simply a matter of calling lehttpd and telling it where the
+letsencrypt challenge directory is. lehttpd simply takes the last path
+component of the request and sends that file from the specified directory.
+
+I use this in conjunction with the C based acme-client[1].
+
+Seeing as all this is meant to be automated. Here's what a shell script to
+drive this might look like...
+
+    #!/bin/sh
+    #
+
+    if [[ ! -d /tmp/acme ]]; then
+            mkdir /tmp/acme
+    fi
+
+    # Will run for 60 seconds then terminate
+    lehttpd /tmp/acme &
+
+    sleep 1
+
+    acme-client -v -n -N -C /tmp/acme -m my.domain.com
+
+    if [ $? -eq 0 ]; then
+            # Certificates changed
+            systemctl restart service1
+            systemctl restart service2
+            ...
+    fi
+
+    exit 0
+
+
+lehttpd uses libmicrohttpd[2] and should be run as root, once started, it
+chroot's to the specified directory and switches to the 'nobody' user. It
+will run for 60 seconds then terminate.
+
+This is licensed under the MIT license. See COPYING.
+
+[0] - https://letsencrypt.org/
+[1] - https://kristaps.bsd.lv/acme-client/
+[2] - http://www.gnu.org/software/libmicrohttpd/
