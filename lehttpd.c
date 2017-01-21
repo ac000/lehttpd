@@ -1,7 +1,7 @@
 /*
  * lehttpd.c
  *
- * Copyright (C) 2016		Andrew Clayton <andrew@digital-domain.net>
+ * Copyright (C) 2016 - 2017	Andrew Clayton <andrew@digital-domain.net>
  *
  * Licensed under the MIT license. See COPYING.
  */
@@ -27,9 +27,9 @@
 
 #define RUNAS		"nobody"
 
-#define pr_log(fmt, ...) \
+#define pr_log(...) \
 	do { \
-		fprintf(stdout, "lehttpd: " fmt, ##__VA_ARGS__); \
+		fprintf(stdout, "lehttpd: " __VA_ARGS__); \
 		fflush(stdout); \
 	} while (0)
 
