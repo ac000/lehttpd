@@ -8,6 +8,14 @@ Usage is simply a matter of calling lehttpd and telling it where the
 letsencrypt challenge directory is. lehttpd simply takes the last path
 component of the request and sends that file from the specified directory.
 
+E.g if it gets the request
+
+    /.well-known/acme-challenge/6rEoXjsdTITO7tJUXj-aXY-RN2CYOF1O6JsgfFqCeUs
+
+it will simply send the file
+
+    6rEoXjsdTITO7tJUXj-aXY-RN2CYOF1O6JsgfFqCeUs
+
 I use this in conjunction with the C based acme-client[1].
 
 Seeing as all this is meant to be automated. Here's what a shell script to
