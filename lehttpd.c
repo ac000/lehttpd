@@ -58,6 +58,8 @@ static int send_file(const char *url, struct MHD_Connection *connection)
 	if (fd == -1)
 		return MHD_NO;
 	fstat(fd, &sb);
+	if ((sb.st_mode & S_IFMT) != S_IFREG)
+		return MHD_NO;
 
 	pr_log("Sending: %s\n", ptr);
 	response = MHD_create_response_from_fd(sb.st_size, fd);
