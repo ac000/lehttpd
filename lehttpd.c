@@ -41,7 +41,7 @@ static int send_file(const char *url, struct MHD_Connection *connection)
 	struct stat sb;
 	char *ptr;
 
-	pr_log("Got reauest for: %s\n", url);
+	pr_log("Got request for: %s\n", url);
 
 	ptr = strrchr(url, '/');
 	ptr++;
