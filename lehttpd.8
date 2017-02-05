@@ -15,6 +15,11 @@ This is the path to where an acme client has placed the challenge response
 files that will be requested by letencrypt.
 
 .SH NOTES
+.SS seccomp
+lehttpd can optionally make use of seccomp on Linux via libseccomp if it is
+installed. This check is made at build time and also run-time to check for
+kernel support.
+
 .SS SOURCE
 https://github.com/ac000/lehttpd
 

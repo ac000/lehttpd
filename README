@@ -49,8 +49,13 @@ lehttpd uses libmicrohttpd[2] and should be run as root, once started, it
 chroot's to the specified directory and switches to the 'nobody' user. It
 will run for 60 seconds then terminate.
 
+Also if you have libseccomp[3] installed it will try to make use of the
+Linux kernels seccomp support. This also needs the SCMP_FLTATR_CTL_TSYNC
+flag, which is also checked for at run-time.
+
 This is licensed under the MIT license. See COPYING.
 
 [0] - https://letsencrypt.org/
 [1] - https://kristaps.bsd.lv/acme-client/
 [2] - http://www.gnu.org/software/libmicrohttpd/
+[3] - https://github.com/seccomp/libseccomp

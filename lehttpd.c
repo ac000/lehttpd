@@ -22,6 +22,10 @@
 #include <time.h>
 #include <pwd.h>
 #include <grp.h>
+#include <errno.h>
+#ifdef _HAVE_LIBSECCOMP
+#include <seccomp.h>
+#endif
 
 #include <microhttpd.h>
 
@@ -33,6 +37,69 @@
 		fprintf(stdout, "lehttpd: " __VA_ARGS__); \
 		fflush(stdout); \
 	} while (0)
+
+static void init_seccomp(void)
+{
+#ifdef _HAVE_LIBSECCOMP
+	int err;
+	scmp_filter_ctx ctx;
+
+	ctx = seccomp_init(SCMP_ACT_ERRNO(EACCES));
+	if (ctx == NULL)
+		goto no_seccomp;
+
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(open), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(close), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(fstat), 0);
+
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(write), 1,
+			SCMP_CMP(0, SCMP_CMP_EQ, STDOUT_FILENO));
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(write), 1,
+			SCMP_CMP(0, SCMP_CMP_EQ, STDERR_FILENO));
+
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(nanosleep), 0);
+
+	/* For libmicrohttpd */
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(socket), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(setsockopt), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(getsockopt), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(shutdown), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(select), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(accept4), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(recvfrom), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(sendto), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(sendfile), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(mmap), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(munmap), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(mprotect), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(madvise), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(fcntl), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(futex), 0);
+
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(sigreturn), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(exit), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(exit_group), 0);
+
+	err = seccomp_attr_set(ctx, SCMP_FLTATR_CTL_TSYNC, 1);
+	if (err) {
+		pr_log("SCMP_FLTATR_CTL_TSYNC seccomp flag not available\n");
+		goto no_seccomp;
+	}
+
+	err = seccomp_load(ctx);
+	if (!err) {
+		pr_log("Initialised seccomp\n");
+		return;
+	}
+
+no_seccomp:
+	seccomp_release(ctx);
+	pr_log("Seccomp initialisation failed. Check kernel config?\n");
+	pr_log("Continuing without seccomp\n");
+#else
+	pr_log("Not built with libseccomp support. Not using seccomp\n");
+#endif
+}
 
 static int send_file(const char *url, struct MHD_Connection *connection)
 {
@@ -152,6 +219,7 @@ int main(int argc, char *argv[])
 	}
 	pr_log("Now running as uid %d\n", getuid());
 
+	init_seccomp();
 	sleep(60);
 
 	pr_log("Shutting down...\n");
