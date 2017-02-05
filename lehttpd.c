@@ -26,6 +26,7 @@
 #include <microhttpd.h>
 
 #define RUNAS		"nobody"
+#define ACME_CHAL_PRFX	"/.well-known/acme-challenge/"
 
 #define pr_log(...) \
 	do { \
@@ -42,6 +43,10 @@ static int send_file(const char *url, struct MHD_Connection *connection)
 	char *ptr;
 
 	pr_log("Got request for: %s\n", url);
+	if (strncmp(url, ACME_CHAL_PRFX, strlen(ACME_CHAL_PRFX)) != 0) {
+		pr_log("Not from letsencrypt. Ignoring\n");
+		return MHD_NO;
+	}
 
 	ptr = strrchr(url, '/');
 	ptr++;
