@@ -138,9 +138,11 @@ static int send_file(const char *url, struct MHD_Connection *connection)
         return ret;
 }
 
-static int handle_request(void *cls, struct MHD_Connection *connection,
+static int handle_request(__attribute__ ((unused)) void *cls,
+			  struct MHD_Connection *connection,
 			  const char *url, const char *method,
-			  const char *version, const char *upload_data,
+			  __attribute__ ((unused)) const char *version,
+			  __attribute__ ((unused)) const char *upload_data,
 			  size_t *upload_data_size, void **ptr)
 {
 	static int dummy;
