@@ -84,7 +84,7 @@ static void init_seccomp(void)
 
 	err = seccomp_attr_set(ctx, SCMP_FLTATR_CTL_TSYNC, 1);
 	if (err) {
-		pr_log("SCMP_FLTATR_CTL_TSYNC seccomp flag not available\n");
+		pr_log("SCMP_FLTATR_CTL_TSYNC seccomp flag not available, needs Linux 3.17+\n");
 		goto no_seccomp;
 	}
 
