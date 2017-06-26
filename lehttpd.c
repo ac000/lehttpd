@@ -91,6 +91,7 @@ static void init_seccomp(void)
 	err = seccomp_load(ctx);
 	if (!err) {
 		pr_log("Initialised seccomp\n");
+		seccomp_release(ctx);
 		return;
 	}
 
