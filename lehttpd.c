@@ -1,7 +1,7 @@
 /*
  * lehttpd.c
  *
- * Copyright (C) 2016 - 2017	Andrew Clayton <andrew@digital-domain.net>
+ * Copyright (C) 2016 - 2018	Andrew Clayton <andrew@digital-domain.net>
  *
  * Licensed under the MIT license. See COPYING.
  */
@@ -77,6 +77,19 @@ static void init_seccomp(void)
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(madvise), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(fcntl), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(futex), 0);
+
+	/*
+	 * Not sure, needed for CentOS 7 since around May 2018
+	 *
+	 * Weird thing is on a CentOS 7 vm @ Vultr I see different
+	 * syscalls than that of a CentOS 7 vm running locally. Both
+	 * are on the same kernel, glibc, libmicrohttpd ...
+	 */
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(brk), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(rt_sigprocmask), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(rt_sigaction), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(rt_sigreturn), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(set_robust_list), 0);
 
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(sigreturn), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(exit), 0);
