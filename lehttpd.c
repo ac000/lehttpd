@@ -79,17 +79,15 @@ static void init_seccomp(void)
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(futex), 0);
 
 	/*
-	 * Not sure, needed for CentOS 7 since around May 2018
-	 *
-	 * Weird thing is on a CentOS 7 vm @ Vultr I see different
-	 * syscalls than that of a CentOS 7 vm running locally. Both
-	 * are on the same kernel, glibc, libmicrohttpd ...
+	 * It seems that kernel 3.10.0-862.2.3 introduced the
+	 * SCMP_FLTATR_CTL_TSYNC flag that allows us to now use seccomp
+	 * for this under CentOS 7. However it showed that we also
+	 * require the below syscalls.
 	 */
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(brk), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(rt_sigprocmask), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(rt_sigaction), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(rt_sigreturn), 0);
-	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(set_robust_list), 0);
 
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(sigreturn), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(exit), 0);
