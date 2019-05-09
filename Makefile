@@ -1,15 +1,15 @@
-CC=gcc
-CFLAGS=-Wall -Wextra -std=c99 -pedantic -O2 -g -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -fPIC
-LDFLAGS=-Wl,-z,relro -Wl,-z,now -pie
-LIBS=-lmicrohttpd
+CC	= gcc
+CFLAGS	= -Wall -Wextra -Wdeclaration-after-statement -Wvla -std=c99 -O2 -g -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -fPIC
+LDFLAGS	= -Wl,-z,defs,-z,relro,-z,now,--as-needed -pie
+LIBS	= -lmicrohttpd
 
 ifeq ($(shell pkg-config --exists libseccomp && echo 1), 1)
-LIBS += -lseccomp
-CFLAGS += -D_HAVE_LIBSECCOMP
+LIBS	+= -lseccomp
+CFLAGS	+= -D_HAVE_LIBSECCOMP
 endif
 
 lehttpd: lehttpd.c
-	$(CC) $(CFLAGS) $(LDFLAGS) -o lehttpd lehttpd.c ${LIBS}
+	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< $(LIBS)
 
 clean:
 	rm -f lehttpd
