@@ -1,7 +1,8 @@
 /*
  * lehttpd.c
  *
- * Copyright (C) 2016 - 2018	Andrew Clayton <andrew@digital-domain.net>
+ * Copyright (C) 2016 - 2018, 2020	Andrew Clayton
+ *					<andrew@digital-domain.net>
  *
  * Licensed under the MIT license. See COPYING.
  */
@@ -28,6 +29,8 @@
 #endif
 
 #include <microhttpd.h>
+
+#define __unused	__attribute__((unused))
 
 #define RUNAS		"nobody"
 #define ACME_CHAL_PRFX	"/.well-known/acme-challenge/"
@@ -150,11 +153,11 @@ static int send_file(const char *url, struct MHD_Connection *connection)
         return ret;
 }
 
-static int handle_request(__attribute__ ((unused)) void *cls,
+static int handle_request(void *cls __unused,
 			  struct MHD_Connection *connection,
 			  const char *url, const char *method,
-			  __attribute__ ((unused)) const char *version,
-			  __attribute__ ((unused)) const char *upload_data,
+			  const char *version __unused,
+			  const char *upload_data __unused,
 			  size_t *upload_data_size, void **ptr)
 {
 	static int dummy;
