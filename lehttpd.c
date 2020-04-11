@@ -4,7 +4,7 @@
  * Copyright (C) 2016 - 2018, 2020	Andrew Clayton
  *					<andrew@digital-domain.net>
  *
- * Licensed under the MIT license. See COPYING.
+ * Licensed under the GNU General Public License version 2. See COPYING.
  */
 
 #define _FILE_OFFSET_BITS 64

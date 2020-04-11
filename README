@@ -53,7 +53,8 @@ Also if you have libseccomp[3] installed it will try to make use of the
 Linux kernels seccomp support. This also needs the SCMP_FLTATR_CTL_TSYNC
 flag, which is also checked for at run-time.
 
-This is licensed under the MIT license. See COPYING.
+This is licensed under the GNU General Public License version 2. See
+COPYING.
 
 [0] - https://letsencrypt.org/
 [1] - https://github.com/graywolf/acme-client-portable
