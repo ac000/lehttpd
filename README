@@ -33,7 +33,7 @@ drive this might look like...
 
     sleep 1
 
-    acme-client -v -n -N -C /tmp/acme -m my.domain.com
+    acme-client -v my.domain.com
 
     if [ $? -eq 0 ]; then
             # Certificates changed
@@ -56,6 +56,6 @@ flag, which is also checked for at run-time.
 This is licensed under the MIT license. See COPYING.
 
 [0] - https://letsencrypt.org/
-[1] - https://kristaps.bsd.lv/acme-client/
+[1] - https://github.com/graywolf/acme-client-portable
 [2] - http://www.gnu.org/software/libmicrohttpd/
 [3] - https://github.com/seccomp/libseccomp
