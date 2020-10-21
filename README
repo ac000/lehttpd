@@ -49,9 +49,19 @@ lehttpd uses libmicrohttpd[2] and should be run as root, once started, it
 chroot's to the specified directory and switches to the 'nobody' user. It
 will run for 60 seconds then terminate.
 
+On Red Hat/Fedora based systems you yill need the libmicrohttpd-devel package
+and on Debian it's libmicrohttpd-dev
+
 Also if you have libseccomp[3] installed it will try to make use of the
 Linux kernels seccomp support. This also needs the SCMP_FLTATR_CTL_TSYNC
 flag, which is also checked for at run-time.
+
+On Red Hat/Fedora based systems you yill need the libseccomp-devel package
+and on Debian it's libseccomp-dev
+
+The libseccomp detection uses pkg-config which on Red Hat et al is either
+the pkgconfig or pkgconf-pkg-config package for newer systems. On Debian it's
+pkg-config.
 
 This is licensed under the GNU General Public License version 2. See
 COPYING.
