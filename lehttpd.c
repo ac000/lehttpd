@@ -30,6 +30,19 @@
 
 #include <microhttpd.h>
 
+/*
+ * libmicrohttpd 0.9.71 changed the return type of the
+ * MHD_AccessHandlerCallback handler from an 'int' to an
+ * 'enum MHD_Result'.
+ *
+ * Allow to continue building on both new and older versions.
+ */
+#if MHD_VERSION >= 0x00097002
+  #define MHD_RESULT enum MHD_Result
+#else
+  #define MHD_RESULT int
+#endif
+
 #define __unused	__attribute__((unused))
 
 #define RUNAS		"nobody"
@@ -157,12 +170,12 @@ static int send_file(const char *url, struct MHD_Connection *connection)
         return ret;
 }
 
-static int handle_request(void *cls __unused,
-			  struct MHD_Connection *connection,
-			  const char *url, const char *method,
-			  const char *version __unused,
-			  const char *upload_data __unused,
-			  size_t *upload_data_size, void **ptr)
+static MHD_RESULT handle_request(void *cls __unused,
+				 struct MHD_Connection *connection,
+				 const char *url, const char *method,
+				 const char *version __unused,
+				 const char *upload_data __unused,
+				 size_t *upload_data_size, void **ptr)
 {
 	static int dummy;
 	int ret;
