@@ -1,5 +1,7 @@
 CC	= gcc
-CFLAGS	= -Wall -Wextra -Wdeclaration-after-statement -Wvla -std=c99 -O2 -g -Wp,-D_FORTIFY_SOURCE=2 -fexceptions -fstack-protector --param=ssp-buffer-size=4 -fPIC
+CFLAGS	= -Wall -Wextra -Wdeclaration-after-statement -Wvla -std=c99 -O2 -g \
+	  -Wp,-D_FORTIFY_SOURCE=2 --param=ssp-buffer-size=4 -fstack-protector \
+	  -fexceptions -fPIE
 LDFLAGS	= -Wl,-z,defs,-z,relro,-z,now,--as-needed -pie
 LIBS	= -lmicrohttpd
 
