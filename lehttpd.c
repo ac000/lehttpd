@@ -1,8 +1,8 @@
 /*
  * lehttpd.c
  *
- * Copyright (C) 2016 - 2018, 2020	Andrew Clayton
- *					<andrew@digital-domain.net>
+ * Copyright (C) 2016 - 2018, 2020 - 2021	Andrew Clayton
+ *						<andrew@digital-domain.net>
  *
  * Licensed under the GNU General Public License version 2. See COPYING.
  */
@@ -80,6 +80,7 @@ static void init_seccomp(void)
 			SCMP_CMP(0, SCMP_CMP_EQ, STDERR_FILENO));
 
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(nanosleep), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(clock_nanosleep), 0);
 
 	/* For libmicrohttpd */
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(socket), 0);
@@ -87,6 +88,7 @@ static void init_seccomp(void)
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(getsockopt), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(shutdown), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(select), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(pselect6), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(accept4), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(recvfrom), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(sendto), 0);
@@ -97,6 +99,7 @@ static void init_seccomp(void)
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(madvise), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(fcntl), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(futex), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(prctl), 0);
 
 	/*
 	 * It seems that kernel 3.10.0-862.2.3 introduced the
