@@ -8,7 +8,7 @@ Usage is simply a matter of calling lehttpd and telling it where the
 letsencrypt challenge directory is. lehttpd simply takes the last path
 component of the request and sends that file from the specified directory.
 
-E.g if it gets the request
+E.g. if it gets the request
 
     /.well-known/acme-challenge/6rEoXjsdTITO7tJUXj-aXY-RN2CYOF1O6JsgfFqCeUs
 
@@ -67,6 +67,6 @@ This is licensed under the GNU General Public License version 2. See
 COPYING.
 
 [0] - https://letsencrypt.org/
-[1] - https://github.com/graywolf/acme-client-portable
+[1] - https://git.wolfsden.cz/acme-client-portable
 [2] - http://www.gnu.org/software/libmicrohttpd/
 [3] - https://github.com/seccomp/libseccomp
