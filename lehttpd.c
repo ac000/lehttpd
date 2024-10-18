@@ -214,7 +214,7 @@ int main(int argc, char *argv[])
 		MHD_USE_DUAL_STACK;
 
 	if (argc < 2) {
-		printf("Usage: lehttpd </path/to/chllenge-dir>\n");
+		printf("Usage: lehttpd </path/to/challenge-dir>\n");
 		exit(EXIT_FAILURE);
 	}
 
