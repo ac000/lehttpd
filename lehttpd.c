@@ -46,6 +46,10 @@
 #define __unused	__attribute__((unused))
 #endif
 
+#ifdef _HAVE_CGROUPV2
+#define CGPATH		"/sys/fs/cgroup/lehttpd"
+#endif
+
 #define RUNAS		"nobody"
 #define ACME_CHAL_PRFX	"/.well-known/acme-challenge/"
 
@@ -54,6 +58,57 @@
 		fprintf(stdout, "lehttpd: " __VA_ARGS__); \
 		fflush(stdout); \
 	} while (0)
+
+static int init_cgroup(void)
+{
+#ifdef _HAVE_CGROUPV2
+	FILE *fp;
+	int err;
+
+	err = mkdir(CGPATH, 0777);
+	if (err && errno != EEXIST) {
+		perror("mkdir(" CGPATH ")");
+		return -1;
+	}
+
+	fp = fopen(CGPATH "/cgroup.procs", "w");
+	if (!fp) {
+		perror("fopen(" CGPATH "/cgroup.procs)");
+		return -1;
+	}
+
+	err = fprintf(fp, "%d\n", getpid());
+	if (err == -1) {
+		perror("fprintf(" CGPATH "/cgroup.procs)");
+		goto out_err_close;
+	}
+	fclose(fp);
+
+	fp = fopen(CGPATH "/memory.max", "w");
+	if (!fp) {
+		perror("fopen(" CGPATH "/memory.max)");
+		return -1;
+	}
+
+	err = fprintf(fp, "%d\n", 8 * 1024*1024);
+	if (err == -1) {
+		perror("fprintf(" CGPATH "/memory.max)");
+		goto out_err_close;
+	}
+	fclose(fp);
+
+	return 0;
+
+out_err_close:
+	fclose(fp);
+
+	return -1;
+#else
+	pr_log("No cgroup support found. Continuing without\n");
+
+	return 0;
+#endif
+}
 
 static void init_seccomp(void)
 {
@@ -217,6 +272,10 @@ int main(int argc, char *argv[])
 		printf("Usage: lehttpd </path/to/challenge-dir>\n");
 		exit(EXIT_FAILURE);
 	}
+
+	ret = init_cgroup();
+	if (ret == -1)
+		pr_log("Failed to configure cgroup, continuing without\n");
 
 	pr_log("Changing directory to %s\n", argv[1]);
 	ret = chdir(argv[1]);

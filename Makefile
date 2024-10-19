@@ -10,6 +10,10 @@ LIBS	+= -lseccomp
 CFLAGS	+= -D_HAVE_LIBSECCOMP
 endif
 
+ifeq ($(shell findmnt /sys/fs/cgroup | grep cgroup2 >/dev/null && echo 1), 1)
+CFLAGS  += -D_HAVE_CGROUPV2
+endif
+
 lehttpd: lehttpd.c
 	$(CC) $(CFLAGS) $(LDFLAGS) -o $@ $< $(LIBS)
 
