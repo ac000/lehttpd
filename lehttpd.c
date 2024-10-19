@@ -90,6 +90,10 @@ static void init_seccomp(void)
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(shutdown), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(select), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(pselect6), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(poll), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(ppoll), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(epoll_wait), 0);
+	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(epoll_ctl), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(accept4), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(recvfrom), 0);
 	seccomp_rule_add(ctx, SCMP_ACT_ALLOW, SCMP_SYS(sendto), 0);
@@ -210,8 +214,7 @@ int main(int argc, char *argv[])
 	struct MHD_Daemon *mhd;
 	struct passwd *pwd = getpwnam(RUNAS);
 	int ret;
-	int mhd_flags = MHD_USE_SELECT_INTERNALLY | MHD_USE_IPv6 |
-		MHD_USE_DUAL_STACK;
+	int mhd_flags;
 
 	if (argc < 2) {
 		printf("Usage: lehttpd </path/to/challenge-dir>\n");
@@ -231,6 +234,11 @@ int main(int argc, char *argv[])
 		perror("chroot");
 		exit(EXIT_FAILURE);
 	}
+
+	mhd_flags = MHD_USE_INTERNAL_POLLING_THREAD | \
+		    MHD_USE_AUTO | \
+		    MHD_USE_IPv6 | \
+		    MHD_USE_DUAL_STACK;
 
 	pr_log("Starting daemon with pid %d as uid %d\n", getpid(), geteuid());
 	mhd = MHD_start_daemon(mhd_flags, 80, NULL, NULL, &handle_request,
