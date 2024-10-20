@@ -19,6 +19,8 @@
 #include <sys/types.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include <time.h>
 #include <pwd.h>
 #include <grp.h>
@@ -28,6 +30,8 @@
 #endif
 
 #include <microhttpd.h>
+
+#define LISTEN_PORT	80
 
 /*
  * libmicrohttpd 0.9.71 changed the return type of the
@@ -209,11 +213,62 @@ static MHD_RESULT handle_request(void *cls __unused,
 	return ret;
 }
 
+static int create_listen_socket(void)
+{
+	int err;
+	int lfd;
+	int flag = 1;
+	struct sockaddr_in6 addr = {};
+
+	addr.sin6_family = AF_INET6;
+	addr.sin6_addr = in6addr_any;
+	addr.sin6_port = htons(LISTEN_PORT);
+
+	lfd = socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP);
+	if (lfd == -1) {
+		perror("socket(AF_INET6, SOCK_STREAM, IPPROTO_TCP)");
+		return -1;
+	}
+
+	err = setsockopt(lfd, SOL_SOCKET, SO_REUSEADDR, &flag, sizeof(flag));
+	if (err) {
+		perror("setsockopt(lfd, SOL_SOCKET, SO_REUSEADDR, 1, ...)");
+		goto out_err_close;
+	}
+
+	flag = 0;
+	err = setsockopt(lfd, IPPROTO_IPV6, IPV6_V6ONLY, &flag, sizeof(flag));
+	if (err) {
+		perror("setsockopt(lfd, IPPROTO_IPV6, IPV6_V6ONLY, 0, ...)");
+		goto out_err_close;
+	}
+
+	err = bind(lfd, (struct sockaddr *)&addr, sizeof(addr));
+	if (err) {
+		perror("bind(lfd, ...)");
+		goto out_err_close;
+	}
+
+	err = listen(lfd, -1);
+	if (err) {
+		perror("listen(lfd, -1)");
+		goto out_err_close;
+	}
+
+	return lfd;
+
+out_err_close:
+	close(lfd);
+
+	return -1;
+}
+
 int main(int argc, char *argv[])
 {
 	struct MHD_Daemon *mhd;
 	struct passwd *pwd = getpwnam(RUNAS);
 	int ret;
+	int listen_socket;
 	int mhd_flags;
 
 	if (argc < 2) {
@@ -235,14 +290,17 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 
-	mhd_flags = MHD_USE_INTERNAL_POLLING_THREAD | \
-		    MHD_USE_AUTO | \
-		    MHD_USE_IPv6 | \
-		    MHD_USE_DUAL_STACK;
+	pr_log("Creating listen socket on *:80\n");
+	listen_socket = create_listen_socket();
+	if (listen_socket == -1)
+		exit(EXIT_FAILURE);
+
+	mhd_flags = MHD_USE_INTERNAL_POLLING_THREAD | MHD_USE_AUTO;
 
 	pr_log("Starting daemon with pid %d as uid %d\n", getpid(), geteuid());
-	mhd = MHD_start_daemon(mhd_flags, 80, NULL, NULL, &handle_request,
-			NULL, MHD_OPTION_END);
+	mhd = MHD_start_daemon(mhd_flags, -1, NULL, NULL, &handle_request, NULL,
+			       MHD_OPTION_LISTEN_SOCKET, listen_socket,
+			       MHD_OPTION_END);
 	if (!mhd)
 		exit(EXIT_FAILURE);
 
