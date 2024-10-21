@@ -295,15 +295,6 @@ int main(int argc, char *argv[])
 	if (listen_socket == -1)
 		exit(EXIT_FAILURE);
 
-	mhd_flags = MHD_USE_INTERNAL_POLLING_THREAD | MHD_USE_AUTO;
-
-	pr_log("Starting daemon with pid %d as uid %d\n", getpid(), geteuid());
-	mhd = MHD_start_daemon(mhd_flags, -1, NULL, NULL, &handle_request, NULL,
-			       MHD_OPTION_LISTEN_SOCKET, listen_socket,
-			       MHD_OPTION_END);
-	if (!mhd)
-		exit(EXIT_FAILURE);
-
 	/* Drop root's supplimentary groups */
 	ret = setgroups(0, NULL);
 	if (ret == -1) {
@@ -324,6 +315,16 @@ int main(int argc, char *argv[])
 		exit(EXIT_FAILURE);
 	}
 	pr_log("Now running as uid %d\n", getuid());
+
+	mhd_flags = MHD_USE_INTERNAL_POLLING_THREAD | MHD_USE_AUTO;
+
+	pr_log("Starting daemon with pid %d as uid %d (%s)\n",
+	       getpid(), geteuid(), RUNAS);
+	mhd = MHD_start_daemon(mhd_flags, -1, NULL, NULL, &handle_request, NULL,
+			       MHD_OPTION_LISTEN_SOCKET, listen_socket,
+			       MHD_OPTION_END);
+	if (!mhd)
+		exit(EXIT_FAILURE);
 
 	init_seccomp();
 	sleep(60);
